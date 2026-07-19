@@ -1,0 +1,81 @@
+:root {
+    --csuf-blue: #00274c;
+    --csuf-cream: #f9f6ef;
+    --csuf-orange: #ff6600;
+}
+
+body {
+    background: var(--csuf-cream);
+    color: #1f2933;
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.api-card-img {
+    height: 300px;
+    object-fit: cover;
+}
+
+.json-output {
+    max-height: 70vh;
+    overflow: auto;
+    white-space: pre-wrap;
+}
+
+.details-poster {
+    width: 100%;
+    max-height: 520px;
+    object-fit: contain;
+}
+
+.rating-progress {
+    --rating: 0%;
+    align-items: center;
+    background: conic-gradient(var(--csuf-orange) var(--rating), #d9dee3 0);
+    border-radius: 50%;
+    display: flex;
+    height: 8rem;
+    justify-content: center;
+    position: relative;
+    width: 8rem;
+}
+
+.rating-progress::before {
+    background: #ffffff;
+    border-radius: 50%;
+    content: "";
+    inset: 0.75rem;
+    position: absolute;
+}
+
+.rating-progress span {
+    font-size: 1.35rem;
+    font-weight: 700;
+    position: relative;
+}
+
+.feedback-history-message {
+    font-style: italic;
+}
+
+footer {
+    background-color: var(--csuf-blue);
+    color: #ffffff;
+    text-align: center;
+    padding: 1rem;
+}
+
+footer p {
+    margin: 0.3rem 0;
+}
+
+footer a {
+    color: #ffd9b5;
+}
+
+.navbar-theme-color {
+    background-color: var(--csuf-blue) !important;
+}
+
+.navbar-theme-color-2 {
+    background-color: var(--csuf-orange) !important;
+}

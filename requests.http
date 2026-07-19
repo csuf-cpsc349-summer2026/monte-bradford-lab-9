@@ -1,0 +1,6 @@
+GET https://api.tvmaze.com/search/shows?q=superman
+
+###
+
+# Replace YOUR_TMDB_API_KEY with a local teaching/demo key.
+GET https://api.themoviedb.org/3/search/movie?api_key=[YOUR_TMDB_API_KEY]&query=superman&include_adult=false
