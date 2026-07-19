@@ -462,3 +462,8 @@ Students must submit:
 - [Statista: Most used web frameworks among developers worldwide](https://www.statista.com/statistics/1124699/worldwide-developer-survey-most-used-frameworks-web/)
 - [TVMaze API documentation](https://www.tvmaze.com/api)
 - [TMDB Developer documentation](https://developer.themoviedb.org/)
+
+## SCREENSHOTS
+
+![TMDB](images/tmdb.png)
+![TVMAZE](images/tvmaze.png)

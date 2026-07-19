@@ -33,57 +33,144 @@ const sampleComponents = {
     reviewsMessage: "Reviews from the API can be rendered here as cards or alerts."
 };
 
-/*
-Bootstrap details starter
--------------------------
-Uncomment these functions and replace each "..." with the correct value.
-TODO: Replace the ... placeholders with actual values from the details response.
-We are using components because we can merge and reuse both details and reviews from 2 separate API calls.
+
+// Bootstrap details starter
+// -------------------------
+// Uncomment these functions and replace each "..." with the correct value.
+// TODO: Replace the ... placeholders with actual values from the details response.
+// We are using components because we can merge and reuse both details and reviews from 2 separate API calls.
+
+function formatRuntime(minutes) {
+    if (!minutes) {
+        return "Runtime unavailable";
+    }
+
+    const hours = Math.floor(minutes / 60);
+    const remainingMinutes = minutes % 60;
+
+    if (hours === 0) {
+        return `${remainingMinutes}m`;
+    }
+
+    return `${hours}h ${remainingMinutes}m`;
+}
+
+function stripHtml(value) {
+    if (!value) {
+        return "No summary available.";
+    }
+
+    return value.replace(/<[^>]*>/g, "");
+}
 
 function renderTmdbComponents(details, reviews) {
-    const poster = "...";
-    const rating = "...";
+    const poster = details.poster_path
+        ? `https://image.tmdb.org/t/p/w500${details.poster_path}`
+        : "";
+
+    const ratingValue = details.vote_average
+        ? Math.round(details.vote_average * 10)
+        : 0;
 
     return {
-        title: "...",
+        title: details.title || "Unknown title",
+
         poster,
-        posterAlt: "...",
-        releaseDate: "...",
-        runtime: "...",
-        summary: "...",
-        voteCount: "...",
-        genres: ["..."],
-        rating,
-        ratingValue: rating,
-        reviews: reviews.map((review) => ({
-            id: review.id,
-            author: "...",
-            text: "..."
+
+        posterAlt: details.title
+            ? `${details.title} poster`
+            : "Movie poster",
+
+        releaseDate:
+            details.release_date || "Release date unavailable",
+
+        runtime: formatRuntime(details.runtime),
+
+        summary:
+            details.overview || "No summary available.",
+
+        voteCount:
+            details.vote_count !== undefined
+                ? `${details.vote_count.toLocaleString()} votes`
+                : "Vote count unavailable",
+
+        genres:
+            details.genres?.length
+                ? details.genres.map((genre) => genre.name)
+                : ["Genre unavailable"],
+
+        rating:
+            details.vote_average
+                ? `${details.vote_average.toFixed(1)}/10`
+                : "Not rated",
+
+        ratingValue,
+
+        reviews: reviews.map((review, index) => ({
+            id: review.id || `tmdb-review-${index}`,
+
+            author:
+                review.author || "Anonymous reviewer",
+
+            text:
+                review.content || "No review text available."
         })),
-        reviewsMessage: reviews.length === 0 ? "..." : ""
+
+        reviewsMessage:
+            reviews.length === 0
+                ? "No reviews are currently available for this movie."
+                : ""
     };
 }
 
 function renderTvMazeComponents(details) {
-    const poster = "...";
-    const rating = "...";
+    const poster =
+        details.image?.original ||
+        details.image?.medium ||
+        "";
+
+    const averageRating = details.rating?.average ?? 0;
+    const ratingValue = Math.round(averageRating * 10);
 
     return {
-        title: "...",
+        title: details.name || "Unknown title",
+
         poster,
-        posterAlt: "...",
-        releaseDate: "...",
-        runtime: "...",
-        summary: "...",
-        voteCount: "...",
-        genres: ["..."],
-        rating,
-        ratingValue: rating,
+
+        posterAlt: details.name
+            ? `${details.name} poster`
+            : "TV show poster",
+
+        releaseDate:
+            details.premiered || "Premiere date unavailable",
+
+        runtime: formatRuntime(
+            details.averageRuntime || details.runtime
+        ),
+
+        summary: stripHtml(details.summary),
+
+        voteCount:
+            "TVMaze does not provide a vote count.",
+
+        genres:
+            details.genres?.length
+                ? details.genres
+                : ["Genre unavailable"],
+
+        rating:
+            averageRating
+                ? `${averageRating}/10`
+                : "Not rated",
+
+        ratingValue,
+
         reviews: [],
-        reviewsMessage: "..."
+
+        reviewsMessage:
+            "TVMaze does not provide user reviews for this show."
     };
 }
-*/
 
 export default function DetailsPage() {
     const [searchParams] = useSearchParams();
@@ -98,6 +185,7 @@ export default function DetailsPage() {
     //useEffect is used to load the details when the component mounts or when the source or id changes (first time the page is loaded)
     useEffect(() => {
         async function loadDetails() {
+            setComponents(sampleComponents);
             if (!source || !id) {
                 setStatus("Choose a result from the Search page to load API details.");
                 setStatusType("warning");
@@ -108,31 +196,32 @@ export default function DetailsPage() {
             try {
                 if (source === "tmdb") {
                     setStatus("Loading TMDB API response...");
+
                     const [details, reviews] = await Promise.all([
                         fetchTmdbMovieDetails(id),
                         fetchTmdbMovieReviews(id)
                     ]);
 
+                    setHeading("TMDB API Response");
                     setJsonData({ details, reviews });
+                    setComponents(renderTmdbComponents(details, reviews));
                     setStatus("TMDB details and reviews loaded successfully.");
                     setStatusType("success");
 
-                    // TODO: Uncomment after completing renderTmdbComponents above.
-                    // setComponents(renderTmdbComponents(details, reviews));
                     return;
                 }
 
                 if (source === "tvmaze") {
                     setStatus("Loading TVMaze show details...");
+
                     const details = await fetchTvMazeShowDetails(id);
 
                     setHeading("TVMaze API Response");
                     setJsonData({ details });
+                    setComponents(renderTvMazeComponents(details));
                     setStatus("TVMaze details loaded successfully.");
                     setStatusType("success");
 
-                    // TODO: Uncomment after completing renderTvMazeComponents above.
-                    // setComponents(renderTvMazeComponents(details));
                     return;
                 }
 
@@ -152,51 +241,9 @@ export default function DetailsPage() {
 
     return (
         <>
-            <section className="card shadow-sm mb-4">
-                <div className="card-body">
-                    <h2 className="card-title">Student Task</h2>
-                    <p>
-                        Use the API JSON response on this page to design your own Bootstrap details page. The details
-                        page should be built from API data instead of fixed static movie objects from earlier labs.
-                    </p>
-                    <p>
-                        If the TMDB response does not load below, add your own TMDB API key to
-                        <code> .env.local</code>. TVMaze can still be tested without a key.
-                    </p>
-                    <h3 className="h5">Required Fields</h3>
-                    <ul>
-                        <li>Title</li>
-                        <li>Image or poster</li>
-                        <li>Description or summary</li>
-                        <li>Rating, shown as a visual component such as a pie-style rating display</li>
-                        <li>Genres</li>
-                        <li>Release date or premiere date</li>
-                        <li>Runtime/Length</li>
-                        <li>Vote count or an equivalent message if the API does not provide one</li>
-                        <li>Reviews from TMDB or a message when reviews are not available</li>
-                    </ul>
-                    <p className="mb-0">
-                        Additional fields from the JSON response are optional. Choose the ones that make your page
-                        more useful and readable.
-                    </p>
-                </div>
-                <div className="card-body">
-                    <h2 className="card-title">Reference <code>DetailsPage.jsx</code>:</h2>
-                    <video className="w-100 rounded border" controls muted>
-                        <source src="/images/demo.mp4" type="video/mp4" />
-                        Your browser does not support the video tag.
-                    </video>
-                </div>
-            </section>
 
             <section className="mb-4" aria-labelledby="component-examples-heading">
                 <div className="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2 mb-3">
-                    <div>
-                        <h2 id="component-examples-heading" className="mb-1">Bootstrap Component Examples</h2>
-                        <p className="text-body-secondary mb-0">
-                            Sample content only. Replace these values with fields from the selected API response.
-                        </p>
-                    </div>
 
                     <div className="dropdown">
                         <button className="btn btn-outline-primary dropdown-toggle" type="button"
