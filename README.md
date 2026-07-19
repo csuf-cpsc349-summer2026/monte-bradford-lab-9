@@ -465,5 +465,5 @@ Students must submit:
 
 ## SCREENSHOTS
 
-![TMDB](images/tmdb.png)
-![TVMAZE](images/tvmaze.png)
+![TMDB](.public/images/tmdb.png)
+![TVMAZE](.public/images/tvmaze.png)
